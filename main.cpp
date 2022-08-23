@@ -11,7 +11,7 @@
 // TelegramBot Settings
 X509List* cert = new X509List(TELEGRAM_CERTIFICATE_ROOT);
 BearSSL::WiFiClientSecure* secured_client = new BearSSL::WiFiClientSecure();
-
+git 
 UniversalTelegramBot bot(BOT_TOKEN, *secured_client);
 // UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 unsigned long bot_lasttime; // last time messages' scan has been done
