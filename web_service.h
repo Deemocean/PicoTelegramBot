@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <time.h>
 #include "UniversalTelegramBot.h"
 
 // returns a server pointer with the destinated port

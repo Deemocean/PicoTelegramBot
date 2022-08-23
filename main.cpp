@@ -7,10 +7,13 @@
 #define SDA_PIN XX
 #define SCL_PIN XX
 
-//TelegramBot Settings
-X509List cert(TELEGRAM_CERTIFICATE_ROOT);
-WiFiClientSecure secured_client;
-UniversalTelegramBot bot(BOT_TOKEN, secured_client);
+
+// TelegramBot Settings
+X509List* cert = new X509List(TELEGRAM_CERTIFICATE_ROOT);
+BearSSL::WiFiClientSecure* secured_client = new BearSSL::WiFiClientSecure();
+
+UniversalTelegramBot bot(BOT_TOKEN, *secured_client);
+// UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 unsigned long bot_lasttime; // last time messages' scan has been done
 const unsigned long BOT_MTBS = 1000; //time between scan messages
 
@@ -36,7 +39,8 @@ void setup()
 
     sensor_init(&sht4, SHT4X_HIGH_PRECISION, SHT4X_NO_HEATER);
 
-    secured_client.setTrustAnchors(&cert); // Add root certificate for api.telegram.org
+    secured_client->setTrustAnchors(cert); // Add root certificate for api.telegram.org
+
     WiFi_connect(ssid, password);
     clock_sync();
 
@@ -47,9 +51,19 @@ void setup()
 
 void loop()
 {
+
     if (millis() - bot_lasttime > BOT_MTBS)
     {
+        Serial.print("Scanning...");
+        unsigned long time_start= millis();
+        //Serial.printf("WiFi Status: %i\n", WiFi.status());
         int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+        float scan_time = (millis() - time_start) / 1000.0;
+        Serial.printf("Took %2f seconds\n", scan_time);
+        Serial.printf("%i messages available\n",numNewMessages);
+        if(scan_time>15){
+            reset();
+        }
         while (numNewMessages)
         {
             sht4.getEvent(&humidity, &temp);
@@ -60,6 +74,10 @@ void loop()
             digitalWrite(LED_BUILTIN, LOW);
         }
         bot_lasttime = millis();
+    }else{
+        //blink(1,500);
+        //Serial.print(millis()-bot_lasttime);
+        //Serial.println(" ideling...");
     }
 }
 

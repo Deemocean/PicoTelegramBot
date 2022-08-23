@@ -27,3 +27,8 @@ void blink(int num_blink, int delay_time){
     }
     return;
 }
+
+void reset(void){
+    pinMode(0,OUTPUT);
+    digitalWrite(0,LOW);
+}
